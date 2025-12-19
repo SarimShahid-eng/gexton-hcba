@@ -11,15 +11,44 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
-            $table->timestamps();
-        });
+    Schema::create('users', function (Blueprint $table) {
+        $table->id();
+        // Basic Info
+        $table->string('name', 100);
+        $table->string('father_name', 100)->nullable();
+        $table->date('date_of_birth')->nullable();
+        $table->enum('gender', ['male', 'female', 'other'])->nullable();
+        // Identification
+        $table->string('cnic', 20)->unique();
+        $table->string('bar_license_number', 50)->unique();
+        // Biometrics & Media
+        $table->binary('cnic_image')->nullable();
+        $table->binary('fingerprint1')->nullable();
+        $table->binary('fingerprint2')->nullable();
+        $table->binary('fingerprint3')->nullable();
+        $table->binary('fingerprint4')->nullable();
+        $table->binary('face_data')->nullable();
+        $table->string('cnic_front_path', 255);
+        $table->string('cnic_back_path', 255);
+        // Contact
+        $table->string('email', 100)->unique();
+        $table->string('phone', 20)->nullable();
+        // Authentication
+        $table->string('password', 255);
+        $table->unsignedBigInteger('role_id')->nullable(); 
+        // Verification
+        $table->boolean('is_verified_nadra')->default(false);
+        $table->boolean('is_verified_hcb')->default(false);
+        $table->enum('status', ['inactive', 'active', 'suspended'])->default('inactive');
+        // Membership
+        $table->boolean('dues_paid')->default(false);
+        // Email verification
+        $table->timestamp('email_verified_at')->nullable();
+        $table->rememberToken();
+        $table->timestamps();
+    });
+
+
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();
