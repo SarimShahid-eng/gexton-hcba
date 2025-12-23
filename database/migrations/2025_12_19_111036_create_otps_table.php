@@ -11,25 +11,22 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::disableForeignKeyConstraints();
+
         Schema::create('otps', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')
-                  ->nullable()
-                  ->constrained('users')
-                  ->cascadeOnDelete();
-            $table->string('identifier'); 
-            $table->string('otp'); 
-            $table->enum('type', [
-                'register',
-                'login',
-                'password_reset',
-            ]);
+            $table->foreignId('user_id')->nullable()->constrained();
+            $table->string('identifier');
+            $table->string('otp');
+            $table->enum('type', ["register","login","password_reset"]);
             $table->timestamp('expires_at');
             $table->timestamp('used_at')->nullable();
-            $table->timestamps();
             $table->index(['identifier', 'type']);
             $table->index(['user_id', 'type']);
+            $table->timestamps();
         });
+
+        Schema::enableForeignKeyConstraints();
     }
 
     /**

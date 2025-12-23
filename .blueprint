@@ -1,2 +1,90 @@
+created:
+    - database/factories/UserFactory.php
+    - database/factories/OtpFactory.php
+    - database/factories/NfcCardFactory.php
+    - database/factories/CommitteeFactory.php
+    - database/factories/RoleFactory.php
+    - database/factories/ElectionFactory.php
+    - database/factories/CandidateFactory.php
+    - database/factories/VoteFactory.php
+    - database/factories/FinancialTransactionFactory.php
+    - database/factories/BalanceFactory.php
+    - database/factories/MemberBalanceFactory.php
+    - database/factories/WelfareClaimFactory.php
+    - database/factories/LibraryItemFactory.php
+    - database/factories/BorrowingFactory.php
+    - database/factories/DiscountPartnerFactory.php
+    - database/factories/DiscountAppliedFactory.php
+    - database/factories/ComplaintCategoryFactory.php
+    - database/factories/ComplaintFactory.php
+    - database/factories/ComplaintLogFactory.php
+    - database/factories/AnnouncementFactory.php
+    - database/factories/EventFactory.php
+    - database/factories/AuditLogFactory.php
+    - database/migrations/2025_12_19_111035_create_users_table.php
+    - database/migrations/2025_12_19_111036_create_otps_table.php
+    - database/migrations/2025_12_19_111037_create_nfc_cards_table.php
+    - database/migrations/2025_12_19_111038_create_committees_table.php
+    - database/migrations/2025_12_19_111039_create_roles_table.php
+    - database/migrations/2025_12_19_111040_create_elections_table.php
+    - database/migrations/2025_12_19_111041_create_candidates_table.php
+    - database/migrations/2025_12_19_111042_create_votes_table.php
+    - database/migrations/2025_12_19_111043_create_financial_transactions_table.php
+    - database/migrations/2025_12_19_111044_create_balances_table.php
+    - database/migrations/2025_12_19_111045_create_member_balances_table.php
+    - database/migrations/2025_12_19_111046_create_welfare_claims_table.php
+    - database/migrations/2025_12_19_111047_create_library_items_table.php
+    - database/migrations/2025_12_19_111048_create_borrowings_table.php
+    - database/migrations/2025_12_19_111049_create_discount_partners_table.php
+    - database/migrations/2025_12_19_111050_create_discount_applieds_table.php
+    - database/migrations/2025_12_19_111051_create_complaint_categories_table.php
+    - database/migrations/2025_12_19_111052_create_complaints_table.php
+    - database/migrations/2025_12_19_111053_create_complaint_logs_table.php
+    - database/migrations/2025_12_19_111054_create_announcements_table.php
+    - database/migrations/2025_12_19_111055_create_events_table.php
+    - database/migrations/2025_12_19_111056_create_audit_logs_table.php
+    - app/Models/User.php
+    - app/Models/Otp.php
+    - app/Models/NfcCard.php
+    - app/Models/Committee.php
+    - app/Models/Role.php
+    - app/Models/Election.php
+    - app/Models/Candidate.php
+    - app/Models/Vote.php
+    - app/Models/FinancialTransaction.php
+    - app/Models/Balance.php
+    - app/Models/MemberBalance.php
+    - app/Models/WelfareClaim.php
+    - app/Models/LibraryItem.php
+    - app/Models/Borrowing.php
+    - app/Models/DiscountPartner.php
+    - app/Models/DiscountApplied.php
+    - app/Models/ComplaintCategory.php
+    - app/Models/Complaint.php
+    - app/Models/ComplaintLog.php
+    - app/Models/Announcement.php
+    - app/Models/Event.php
+    - app/Models/AuditLog.php
 models:
-    User: {  }
+    User: { name: 'string:100', father_name: 'string:100 nullable', date_of_birth: 'date nullable', gender: 'enum:male,female,other nullable', cnic: 'string:20 unique', bar_license_number: 'string:50 unique', cnic_image: 'binary nullable', fingerprint1: 'binary nullable', fingerprint2: 'binary nullable', fingerprint3: 'binary nullable', fingerprint4: 'binary nullable', face_data: 'binary nullable', email: 'string:100 unique', phone: 'string:20 nullable', password: 'string:255', role_id: 'foreign nullable', is_verified_nadra: 'boolean default:false', is_verified_hcb: 'boolean default:false', status: 'enum:inactive,active,suspended default:inactive', dues_paid: 'boolean default:false', email_verified_at: 'timestamp nullable', remember_token: rememberToken, timestamps: timestamps, relationships: { hasMany: 'Otp, NfcCard, Role, Candidate, Vote, FinancialTransaction, WelfareClaim, Borrowing, DiscountApplied, Complaint, ComplaintLog, Announcement, Event, AuditLog', hasOne: MemberBalance } }
+    Otp: { user_id: 'foreign nullable', identifier: string, otp: string, type: 'enum:register,login,password_reset', expires_at: timestamp, used_at: 'timestamp nullable', timestamps: timestamps, indexes: [{ index: 'identifier,type' }, { index: 'user_id,type' }], relationships: { belongsTo: User } }
+    NfcCard: { user_id: foreign, card_data: binary, issued_at: timestamp, timestamps: false, relationships: { belongsTo: User } }
+    Committee: { name: 'string:100', chairman_id: 'foreign nullable', timestamps: timestamps, relationships: { belongsTo: 'User:chairman_id', hasMany: 'Role, Election' } }
+    Role: { user_id: foreign, committee_id: 'foreign nullable', role_name: 'string:50', privileges: 'text nullable', timestamps: false, relationships: { belongsTo: 'User, Committee' } }
+    Election: { committee_id: foreign, start_date: date, end_date: date, status: 'enum:upcoming,ongoing,completed default:upcoming', timestamps: false, relationships: { belongsTo: Committee, hasMany: 'Candidate, Vote' } }
+    Candidate: { election_id: foreign, user_id: foreign, timestamps: false, relationships: { belongsTo: 'Election, User' } }
+    Vote: { election_id: foreign, voter_id: foreign, candidate_id: foreign, voted_at: timestamp, timestamps: false, relationships: { belongsTo: 'Election, User:voter_id, Candidate' } }
+    FinancialTransaction: { type: 'enum:expense,funding,payment,dues', amount: 'decimal:10,2', user_id: 'foreign nullable', description: 'text nullable', transaction_date: date, timestamps: false, indexes: [{ index: transaction_date }], relationships: { belongsTo: User } }
+    Balance: { hcba_balance: 'decimal:10,2 default:0', timestamps: timestamps }
+    MemberBalance: { user_id: 'foreign primary', balance: 'decimal:10,2 default:0', last_updated: timestamp, relationships: { belongsTo: User } }
+    WelfareClaim: { user_id: foreign, type: 'enum:medical,death', amount: 'decimal:10,2 nullable', description: 'text nullable', attachments: 'text nullable', status: 'enum:received,approved,ready,rejected default:received', timestamps: timestamps, relationships: { belongsTo: User } }
+    LibraryItem: { title: 'string:200', type: 'enum:book,journal,e-journal', status: 'enum:available,checked_out,reserved default:available', rfid_tag: 'string:50 unique nullable', timestamps: false, relationships: { hasMany: Borrowing } }
+    Borrowing: { user_id: foreign, library_item_id: foreign, borrow_date: date, return_date: 'date nullable', status: 'enum:borrowed,returned default:borrowed', timestamps: false, relationships: { belongsTo: 'User, LibraryItem' } }
+    DiscountPartner: { name: 'string:100', discount_percentage: 'decimal:5,2', mou_details: 'text nullable', timestamps: false, relationships: { hasMany: DiscountApplied } }
+    DiscountApplied: { user_id: foreign, discount_partner_id: foreign, amount_saved: 'decimal:10,2 nullable', applied_at: timestamp, timestamps: false, relationships: { belongsTo: 'User, DiscountPartner' } }
+    ComplaintCategory: { name: 'string:100', timestamps: false, relationships: { hasMany: Complaint } }
+    Complaint: { user_id: foreign, complaint_category_id: foreign, description: text, attachments: 'text nullable', status: 'enum:received,forwarded,resolved,escalated default:received', satisfaction: 'enum:yes,no nullable', timestamps: timestamps, indexes: [{ index: status }], relationships: { belongsTo: 'User, ComplaintCategory', hasMany: ComplaintLog } }
+    ComplaintLog: { complaint_id: foreign, action: text, performed_by: 'foreign nullable', timestamp: timestamp, relationships: { belongsTo: 'Complaint, User:performed_by' } }
+    Announcement: { title: 'string:200', content: text, posted_by: foreign, posted_at: timestamp, timestamps: false, relationships: { belongsTo: 'User:posted_by' } }
+    Event: { name: 'string:200', event_date: date, status: 'enum:available,booked default:available', booker_id: 'foreign nullable', payment_status: 'enum:pending,paid default:pending', timestamps: false, relationships: { belongsTo: 'User:booker_id' } }
+    AuditLog: { action: 'string:100', user_id: 'foreign nullable', details: 'text nullable', timestamp: timestamp, relationships: { belongsTo: User } }

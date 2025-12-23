@@ -1,0 +1,7 @@
+php artisan migrate --path=database/migrations/0001_01_01_000001_create_cache_table.php
+php artisan migrate --path=database/migrations/0001_01_01_000002_create_jobs_table.php
+php artisan migrate --path=database/migrations/2025_12_19_111035_create_users_table.php
+php artisan migrate --path=database/migrations/2025_12_19_111036_create_otps_table.php
+php artisan migrate --path=database/migrations/2025_12_19_111047_create_library_items_table.php
+php artisan migrate --path=database/migrations/2025_12_19_111048_create_borrowings_table.php
+
