@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Library;
 
-use App\Http\Requests\LibraryItemRequest;
 use App\Models\LibraryItem;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\LibraryItemRequest;
 
 class LibraryItemsController extends Controller
 {
@@ -22,6 +23,7 @@ class LibraryItemsController extends Controller
         $library = $query->paginate(10)->through(function ($library) {
             return [
                 'id' => $library->id,
+                'borrowings'=>$library->borrowings,
                 'title' => $library->title,
                 'type' => $library->type,
                 'author_name' => $library->author_name,

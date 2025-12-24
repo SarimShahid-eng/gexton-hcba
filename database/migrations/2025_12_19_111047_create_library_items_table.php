@@ -18,8 +18,10 @@ return new class extends Migration
             $table->string('title', 200);
             $table->string('author_name', 200);
             $table->enum('type', ["book","e-journal"]);
-             $table->enum('status', ["borrowed","returned"])->default('borrowed');
+            $table->date('return_date')->nullable()
+            ->comment('expected to be returned');
             $table->string('rfid_tag', 50)->unique()->nullable();
+            $table->timestamps();
         });
 
         // Schema::enableForeignKeyConstraints();

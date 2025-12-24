@@ -17,9 +17,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained();
             $table->foreignId('library_item_id')->constrained();
-            $table->date('borrow_date');
-            $table->date('return_date')->nullable();
-           
+            $table->date('date');
+            $table->enum('status', ['borrowed', 'returned'])->default('borrowed');
+            $table->timestamps();
+
+
         });
 
         Schema::enableForeignKeyConstraints();

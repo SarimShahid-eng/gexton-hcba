@@ -26,6 +26,7 @@ class LibraryItem extends Model
         'title',
         'type',
         'author_name',
+        'return_date',
         'status',
         'rfid_tag',
     ];

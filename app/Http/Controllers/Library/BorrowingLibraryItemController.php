@@ -1,11 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Library;
 
-use App\Http\Requests\BorrowLibraryItemRequest;
 use App\Models\Borrowing;
 use App\Models\LibraryItem;
+
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\BorrowLibraryItemRequest;
 
 class BorrowingLibraryItemController extends Controller
 {
@@ -65,15 +67,18 @@ class BorrowingLibraryItemController extends Controller
      */
     public function store(BorrowLibraryItemRequest $request)
     {
+ 
         $validated = $request->validated();
-        $validated['borrow_date'] = now();
+        // Remove cnic_number from the validated data
+        unset($validated['cnic_number']);
+        // $validated['borrow_date'] = now();
         // $validated['status'] = 'borrowed';
 
         $borrow = Borrowing::create($validated);
 
         // Optionally update library item status to checked_out
-        LibraryItem::where('id', $borrow->library_item_id)
-            ->update(['status' => 'borrowed']);
+        // LibraryItem::where('id', $borrow->library_item_id)
+        //     ->update(['status' => 'borrowed']);
 
         return response()->json([
             'message' => 'Item has been successfully borrowed.',

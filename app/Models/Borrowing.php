@@ -15,7 +15,7 @@ class Borrowing extends Model
      *
      * @var bool
      */
-    public $timestamps = false;
+    public $timestamps = true;
 
     /**
      * The attributes that are mass assignable.
@@ -23,10 +23,10 @@ class Borrowing extends Model
      * @var array
      */
     protected $fillable = [
-        'cnic_number',
+        'user_id',
         'library_item_id',
-        'borrow_date',
-        'return_date',
+        'date',
+        'status'
     ];
 
     /**
@@ -40,8 +40,9 @@ class Borrowing extends Model
             'id' => 'integer',
             'user_id' => 'integer',
             'library_item_id' => 'integer',
-            'borrow_date' => 'date',
-            'return_date' => 'date',
+            'date' => 'date',
+            // 'borrow_date' => 'date',
+            // 'return_date' => 'date',
         ];
     }
 

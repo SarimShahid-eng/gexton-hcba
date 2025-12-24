@@ -30,8 +30,9 @@ class LibraryItemRequest extends FormRequest
             'id' => [$isUpdate ? 'required' : 'prohibited', 'integer', 'exists:library_items,id'],
 
             'title' => ['required', 'string', 'max:200'],
-            'type' => ['required', 'in:book,journal,e-journal'],
+            'type' => ['required', 'in:book,book,e-journal'],
             'author_name' => ['required'],
+            'return_date'=>['nullable'],
             // author name 
             'status' => ['sometimes', 'required', 'in:available,borrowed'],
             'rfid_tag' => [
