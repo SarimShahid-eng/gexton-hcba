@@ -47,6 +47,7 @@ class BorrowLibraryItemRequest extends FormRequest
             ],
         ];
 
+        
         // === ONLY APPLY AVAILABILITY CHECKS WHEN STATUS IS 'borrowed' ===
         if ($this->input('status') === 'borrowed') {
             $rules['library_item_id'][] = function ($attribute, $value, $fail) {
