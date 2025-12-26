@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Library;
 
-use App\Models\LibraryItem;
-use Illuminate\Http\Request;
+use App\Helpers\FileHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LibraryItemRequest;
+use App\Models\LibraryItem;
+use App\Models\LibraryItemAttachment;
+use Illuminate\Http\Request;
 
 class LibraryItemsController extends Controller
 {
@@ -20,15 +22,16 @@ class LibraryItemsController extends Controller
             $query->where('title', 'like', "%{$search}%")
                 ->orWhere('type', 'like', "%{$search}%");
         }
-        $library = $query->paginate(10)->through(function ($library) {
+        $library = $query->paginate(10)->through(function ($item) {
             return [
-                'id' => $library->id,
-                'borrowings'=>$library->borrowings,
-                'title' => $library->title,
-                'type' => $library->type,
-                'author_name' => $library->author_name,
-                'status' => $library->status,
-                'created_at' => $library->created_at_human,
+                'id' => $item->id,
+                'latest_borrow' => $item->latest_borrow_record,
+                'title' => $item->title,
+                'files' => $item->files,
+                // 'filename'=>$item->
+                'type' => $item->type,
+                'author_name' => $item->author_name,
+                'created_at' => $item->created_at_human,
             ];
         });
 
@@ -55,6 +58,18 @@ class LibraryItemsController extends Controller
     {
         $validated = $request->validated();
         $item = LibraryItem::create($validated);
+        if ($request->hasFile('files')) {
+            $mergeFileName = collect($request->file('files') ?? [])
+                ->map(fn ($file) => FileHelper::uploadToPublic($file, 'assets/libraryAttachments'))
+                ->filter()
+                ->values()
+                ->toArray();
+            foreach ($mergeFileName as $filename) {
+                LibraryItemAttachment::create([
+                    'library_item_id' => $item->id,
+                    'filename' => $filename]);
+            }
+        }
 
         return response()->json([
             'message' => 'Library item created successfully.',
@@ -85,6 +100,7 @@ class LibraryItemsController extends Controller
     {
         $item = LibraryItem::findOrFail($id);
         $item->delete();
+        $item->files()->delete();
         $item->borrowings()->delete();
 
         return response()->json([
@@ -92,5 +108,4 @@ class LibraryItemsController extends Controller
             'data' => $item->refresh(),
         ], 200);
     }
-   
 }

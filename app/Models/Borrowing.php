@@ -40,15 +40,13 @@ class Borrowing extends Model
             'id' => 'integer',
             'user_id' => 'integer',
             'library_item_id' => 'integer',
-            'date' => 'date',
-            // 'borrow_date' => 'date',
-            // 'return_date' => 'date',
+            'date' => 'date'
         ];
     }
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class,'cnic_number','cnic_number');
+        return $this->belongsTo(User::class);
     }
 
     public function libraryItem(): BelongsTo

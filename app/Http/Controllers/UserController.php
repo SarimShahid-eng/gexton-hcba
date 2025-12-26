@@ -44,7 +44,6 @@ class UserController extends Controller
             'name'  => $user->name,
             'email' => $user->email,
             'cnic'  => $user->cnic,
-            // Add any other fields you want to expose
         ],
     ], 200);
 }

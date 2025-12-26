@@ -12,7 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::disableForeignKeyConstraints();
-
+//type general,welfare,comitte_id can bee seen by everyone
+// general will not require committe_id
+// welfare announmect will require welfare_id
+// 
         Schema::create('announcements', function (Blueprint $table) {
             $table->id();
             $table->string('title', 200);

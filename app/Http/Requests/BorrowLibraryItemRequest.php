@@ -17,20 +17,14 @@ class BorrowLibraryItemRequest extends FormRequest
     {
         $rules = [
             'user_id' => [
-                'required',
+                'nullable',
+                'required_if:status,borrowed',
                 'integer',
                 'exists:users,id',
             ],
 
-            'cnic_number' => [
-                'required',
-                'digits:13',
-                'regex:/^\d{13}$/',
-                Rule::exists('users', 'cnic')->where('id', $this->user_id),
-            ],
-
             'date' => [
-                'required',
+                'nullable',
                 'date',
                 'after_or_equal:today',
             ],
@@ -52,15 +46,17 @@ class BorrowLibraryItemRequest extends FormRequest
         if ($this->input('status') === 'borrowed') {
             $rules['library_item_id'][] = function ($attribute, $value, $fail) {
                 $latestBorrowing = Borrowing::where('library_item_id', $value)
+                    ->where('user_id', $this->input('user_id'))
                     ->latest('id')
                     ->first();
 
                 if ($latestBorrowing && $latestBorrowing->status === 'borrowed') {
-                    $fail('This item is currently borrowed and not available.');
+                    $fail('You have already borrowed this item and have not returned it.');
                 }
             };
         }
 
+        // if()
         // Optional: When returning, ensure the latest record is actually 'borrowed'
         if ($this->input('status') === 'returned') {
             $rules['library_item_id'][] = function ($attribute, $value, $fail) {
@@ -72,9 +68,9 @@ class BorrowLibraryItemRequest extends FormRequest
                     $fail('This item is not currently borrowed, so it cannot be returned.');
                 }
                 // Optional: ensure it's the same user returning it
-                if ($latestBorrowing->user_id !== intval($this->user_id)) {
-                    $fail('You can only return items that you have borrowed.');
-                }
+                // if ($latestBorrowing->user_id !== intval($this->user_id)) {
+                //     $fail('You can only return items that you have borrowed.');
+                // }
             };
             
         }

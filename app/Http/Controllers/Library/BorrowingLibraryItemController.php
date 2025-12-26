@@ -2,52 +2,34 @@
 
 namespace App\Http\Controllers\Library;
 
-use App\Models\Borrowing;
-use App\Models\LibraryItem;
-
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BorrowLibraryItemRequest;
+use App\Models\Borrowing;
+use App\Models\LibraryItem;
 
 class BorrowingLibraryItemController extends Controller
 {
     /**
      * Display a listing of borrowing records (with optional search).
      */
-    // public function index(Request $request)
-    // {
-    //     $query = Borrowing::with(['user', 'libraryItem']);
+    public function fetchBorrowHistory($bookID)
+    {
+        $libraryItem = LibraryItem::find($bookID);
 
-    //     if ($request->has('search')) {
-    //         $search = $request->input('search');
+        if (! $libraryItem) {
+            return response()->json([
+                'message' => 'Library item not found.',
+            ], 404);
+        }
+        $borrow = Borrowing::where('library_item_id', $bookID)->get();
 
-    //         $query->whereHas('libraryItem', function ($q) use ($search) {
-    //             $q->where('title', 'like', "%{$search}%")
-    //                 ->orWhere('type', 'like', "%{$search}%")
-    //                 ->orWhere('rfid_tag', 'like', "%{$search}%");
-    //         })->orWhereHas('user', function ($q) use ($search) {
-    //             $q->where('name', 'like', "%{$search}%")
-    //                 ->orWhere('email', 'like', "%{$search}%");
-    //         });
-    //     }
-
-    //     $borrows = $query->latest()->paginate(10)->through(function ($borrow) {
-    //         return [
-    //             'id' => $borrow->id,
-    //             'user_name' => $borrow->user->name,
-    //             'user_email' => $borrow->user->email,
-    //             'item_title' => $borrow->libraryItem->title,
-    //             'item_type' => $borrow->libraryItem->type,
-    //             'item_rfid' => $borrow->libraryItem->rfid_tag,
-    //             'borrow_date' => $borrow->borrow_date,
-    //             'return_date' => $borrow->return_date,
-    //             'status' => $borrow->status,
-    //             'created_at' => $borrow->created_at->diffForHumans(),
-    //         ];
-    //     });
-
-    //     return response()->json($borrows);
-    // }
+        return response()->json([
+            'message' => 'Borrowing record retrieved successfully.',
+            'data' => [
+                'borrow_history' => $borrow,
+            ],
+        ], 200);
+    }
 
     /**
      * Show details of a specific borrowing record (for editing/viewing).
@@ -67,11 +49,22 @@ class BorrowingLibraryItemController extends Controller
      */
     public function store(BorrowLibraryItemRequest $request)
     {
- 
+
         $validated = $request->validated();
-        // Remove cnic_number from the validated data
-        unset($validated['cnic_number']);
-        // $validated['borrow_date'] = now();
+
+        // Auto set user_id for returning if not provided
+        if ($validated['status'] === 'returned' && empty($validated['user_id'])) {
+            $latestBorrowing = Borrowing::where('library_item_id', $validated['library_item_id'])
+                ->where('status', 'borrowed')
+                ->latest('id')
+                ->first();
+
+            if ($latestBorrowing) {
+                $validated['user_id'] = $latestBorrowing->user_id;
+            }
+        }
+
+        $validated['date'] = now()->toDateString();
         // $validated['status'] = 'borrowed';
 
         $borrow = Borrowing::create($validated);
@@ -82,7 +75,7 @@ class BorrowingLibraryItemController extends Controller
 
         return response()->json([
             'message' => 'Item has been successfully borrowed.',
-            'data' => $borrow->load(['user', 'libraryItem']),
+            'data' => $borrow->load(['libraryItem']),
         ], 201);
     }
 
@@ -103,7 +96,7 @@ class BorrowingLibraryItemController extends Controller
 
         return response()->json([
             'message' => 'Borrowing record updated successfully.',
-            'data' => $borrow->refresh()->load(['user', 'libraryItem']),
+            'data' => $borrow->refresh()->load(['libraryItem']),
         ], 200);
     }
 
